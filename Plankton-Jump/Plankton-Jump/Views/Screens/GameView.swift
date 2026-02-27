@@ -10,18 +10,14 @@ import SpriteKit
 
 struct GameView: View {
     @ObservedObject var viewModel: GameViewModel
-
-    var scene: GameScene {
-        let scene = GameScene(size: UIScreen.main.bounds.size)
-        scene.scaleMode = .resizeFill
-        scene.viewModel = viewModel
-        return scene
-    }
+    @State private var scene: GameScene?
 
     var body: some View {
         ZStack {
-            SpriteView(scene: scene)
-                .ignoresSafeArea()
+            if let scene = scene {
+                SpriteView(scene: scene)
+                    .ignoresSafeArea()
+            }
 
             VStack {
                 HStack {
@@ -29,11 +25,18 @@ struct GameView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
+                        .shadow(radius: 3)
                         .padding()
                     Spacer()
                 }
                 Spacer()
             }
+        }
+        .onAppear {
+            let newScene = GameScene()
+            newScene.scaleMode = .resizeFill
+            newScene.viewModel = viewModel
+            scene = newScene
         }
     }
 }
