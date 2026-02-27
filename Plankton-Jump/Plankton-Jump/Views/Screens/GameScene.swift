@@ -16,6 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastUpdateTime: TimeInterval = 0
     private var obstacleTimer: TimeInterval = 0
     private var collectibleTimer: TimeInterval = 0
+    private var isGameOver = false
 
     override func didMove(to view: SKView) {
         physicsWorld.gravity = CGVector(dx: 0, dy: GameConfig.gravity)
@@ -26,17 +27,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(backgroundNode)
 
         plankton = PlanktonNode()
-        plankton.position = CGPoint(x: GameConfig.playerStartX, y: size.height / 2)
+        plankton.position = CGPoint(x: GameConfig.playerStartX, y: GameConfig.groundHeight + 50)
         addChild(plankton)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !isGameOver else { return }
         plankton.jump()
     }
 
     override func update(_ currentTime: TimeInterval) {
+        guard !isGameOver else { return }
+
         let deltaTime = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
         lastUpdateTime = currentTime
+
+        guard deltaTime < 1.0 else { return }
 
         obstacleTimer += deltaTime
         collectibleTimer += deltaTime
@@ -53,9 +59,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         moveNodes(deltaTime: deltaTime)
 
-        if plankton.position.y < 0 {
-            viewModel?.endGame()
+        if plankton.position.y < -50 {
+            gameOver()
         }
+    }
+
+    private func gameOver() {
+        isGameOver = true
+        viewModel?.endGame()
     }
 
     private func spawnObstacle() {
@@ -81,29 +92,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func moveNodes(deltaTime: TimeInterval) {
         let moveAmount = CGFloat(deltaTime) * GameConfig.scrollSpeed
 
-        enumerateChildNodes(withName: "//ObstacleNode") { node, _ in
+        enumerateChildNodes(withName: "obstacle") { node, _ in
             node.position.x -= moveAmount
-            if node.position.x < -50 {
+            if node.position.x < -100 {
                 node.removeFromParent()
             }
         }
 
-        enumerateChildNodes(withName: "//CollectibleNode") { node, _ in
+        enumerateChildNodes(withName: "collectible") { node, _ in
             node.position.x -= moveAmount
-            if node.position.x < -50 {
+            if node.position.x < -100 {
                 node.removeFromParent()
             }
         }
     }
 
     func didBegin(_ contact: SKPhysicsContact) {
+        guard !isGameOver else { return }
+
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 
-        if contactMask == PhysicsCategory.player | PhysicsCategory.obstacle {
-            viewModel?.endGame()
+        if contactMask == (PhysicsCategory.player | PhysicsCategory.obstacle) {
+            gameOver()
         }
 
-        if contactMask == PhysicsCategory.player | PhysicsCategory.collectible {
+        if contactMask == (PhysicsCategory.player | PhysicsCategory.collectible) {
             let collectibleBody = contact.bodyA.categoryBitMask == PhysicsCategory.collectible
                 ? contact.bodyA : contact.bodyB
             if let collectibleNode = collectibleBody.node as? CollectibleNode {

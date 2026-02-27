@@ -10,9 +10,60 @@ import SpriteKit
 class PlanktonNode: SKSpriteNode {
 
     init() {
-        let texture = SKTexture(imageNamed: "plankton")
-        let size = CGSize(width: 50, height: 50)
-        super.init(texture: texture, color: .clear, size: size)
+        let size = CGSize(width: 40, height: 40)
+        super.init(texture: nil, color: .green, size: size)
+
+        self.name = "plankton"
+
+        // Augen
+        let leftEye = SKShapeNode(circleOfRadius: 5)
+        leftEye.fillColor = .white
+        leftEye.strokeColor = .black
+        leftEye.position = CGPoint(x: -8, y: 8)
+        leftEye.zPosition = 1
+        addChild(leftEye)
+
+        let leftPupil = SKShapeNode(circleOfRadius: 2)
+        leftPupil.fillColor = .black
+        leftPupil.strokeColor = .black
+        leftPupil.position = CGPoint(x: 1, y: 0)
+        leftEye.addChild(leftPupil)
+
+        let rightEye = SKShapeNode(circleOfRadius: 5)
+        rightEye.fillColor = .white
+        rightEye.strokeColor = .black
+        rightEye.position = CGPoint(x: 8, y: 8)
+        rightEye.zPosition = 1
+        addChild(rightEye)
+
+        let rightPupil = SKShapeNode(circleOfRadius: 2)
+        rightPupil.fillColor = .black
+        rightPupil.strokeColor = .black
+        rightPupil.position = CGPoint(x: 1, y: 0)
+        rightEye.addChild(rightPupil)
+
+        // Mund
+        let mouth = SKShapeNode(rectOf: CGSize(width: 12, height: 3), cornerRadius: 1)
+        mouth.fillColor = .darkGray
+        mouth.strokeColor = .clear
+        mouth.position = CGPoint(x: 0, y: -5)
+        mouth.zPosition = 1
+        addChild(mouth)
+
+        // Antennen
+        let leftAntenna = SKShapeNode(rectOf: CGSize(width: 2, height: 12))
+        leftAntenna.fillColor = .green
+        leftAntenna.strokeColor = .clear
+        leftAntenna.position = CGPoint(x: -6, y: 26)
+        leftAntenna.zPosition = 1
+        addChild(leftAntenna)
+
+        let rightAntenna = SKShapeNode(rectOf: CGSize(width: 2, height: 12))
+        rightAntenna.fillColor = .green
+        rightAntenna.strokeColor = .clear
+        rightAntenna.position = CGPoint(x: 6, y: 26)
+        rightAntenna.zPosition = 1
+        addChild(rightAntenna)
 
         self.physicsBody = SKPhysicsBody(rectangleOf: size)
         self.physicsBody?.isDynamic = true
