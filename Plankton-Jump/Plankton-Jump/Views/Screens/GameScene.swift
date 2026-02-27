@@ -22,9 +22,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: GameConfig.gravity)
         physicsWorld.contactDelegate = self
 
+        // Szenen-Grenze damit nichts rausfliegt
+        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+
         backgroundNode = BackgroundNode()
         backgroundNode.setup(size: size)
         addChild(backgroundNode)
+
+        // Boden mit Physik-Body
+        let ground = SKNode()
+        ground.position = CGPoint(x: size.width / 2, y: GameConfig.groundHeight)
+        ground.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: 1))
+        ground.physicsBody?.isDynamic = false
+        ground.physicsBody?.categoryBitMask = PhysicsCategory.ground
+        ground.physicsBody?.contactTestBitMask = PhysicsCategory.player
+        addChild(ground)
 
         plankton = PlanktonNode()
         plankton.position = CGPoint(x: GameConfig.playerStartX, y: GameConfig.groundHeight + 50)
@@ -114,6 +126,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if contactMask == (PhysicsCategory.player | PhysicsCategory.obstacle) {
             gameOver()
+        }
+
+        if contactMask == (PhysicsCategory.player | PhysicsCategory.ground) {
+            plankton.isOnGround = true
         }
 
         if contactMask == (PhysicsCategory.player | PhysicsCategory.collectible) {
