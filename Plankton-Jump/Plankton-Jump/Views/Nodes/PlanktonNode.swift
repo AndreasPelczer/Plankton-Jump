@@ -9,6 +9,8 @@ import SpriteKit
 
 class PlanktonNode: SKSpriteNode {
 
+    var isOnGround = true
+
     init() {
         let size = CGSize(width: 40, height: 40)
         super.init(texture: nil, color: .green, size: size)
@@ -78,6 +80,8 @@ class PlanktonNode: SKSpriteNode {
     }
 
     func jump() {
+        guard isOnGround else { return }
+        isOnGround = false
         self.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
         self.physicsBody?.applyImpulse(CGVector(dx: 0, dy: GameConfig.jumpForce))
     }
